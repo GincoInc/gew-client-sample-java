@@ -1,0 +1,522 @@
+syntax = "proto3";
+
+package adamant.global.v1;
+
+option go_package = "adamantglobalv1";
+
+import "google/protobuf/timestamp.proto";
+import "validate/validate.proto";
+import "gincoinc/global/v1/gincoincglobalv1/enum.proto";
+import "gincoinc/adamant/global/v1/adamantglobalv1/enum.proto";
+
+// =============================================================================
+//  Model
+// =============================================================================
+
+// The wallet model
+message Wallet {
+    string owner_id = 23; // organization id
+    string wallet_id = 1; // id
+    string name = 2; // name
+    gincoinc.global.v1.Coin coin = 3; // The type of asset
+    uint32 hd_account = 17; // The number indicating what order the wallet is created
+    WalletType wallet_type = 4; // type
+    gincoinc.global.v1.AddressType address_type = 5; // type of address
+    uint32 m = 6; // The number of signitures which is required to transfer asset
+    uint32 n = 7; // The number of keys
+    WalletState state = 8; // state
+    repeated Key keys = 9; // keys
+    repeated WalletMember members = 10; // members
+    uint32 required_approval_count = 20; // The number of approvals by validator which is required to transfer asset, update wallet info etc.
+    double balance = 11; // number-typed balance
+    string string_balance = 12; // string-typed balance
+    string address = 13; // address
+    string policy_id = 14; // The id of the policy which is adopted the wallet
+    WalletProposal proposal = 18; // The proposal about updating the policy
+    string destination_wallet_id = 19; // The id of wallet to which the tx is send (only wallet type is WALLET_TYPE_SELF_CUSTODY_HOT_ETHEREUM_EOA_RECEIVE_ONLY)
+    bool watch_only = 21; // The flag indicating the
+    uint32 address_number = 22; // number of address (only watch_only is true)
+    google.protobuf.Timestamp create_time = 15; // the time at which the wallet was created
+    google.protobuf.Timestamp update_time = 16; // the time at which the wallet was updated
+}
+
+message WalletWithoutBalance {
+    string owner_id = 20;
+    string wallet_id = 1;
+    string name = 2;
+    gincoinc.global.v1.Coin coin = 3;
+    uint32 hd_account = 4;
+    WalletType wallet_type = 5;
+    gincoinc.global.v1.AddressType address_type = 6;
+    uint32 m = 7;
+    uint32 n = 8;
+    WalletState state = 9;
+    repeated Key keys = 10;
+    repeated WalletMember members = 11;
+    uint32 required_approval_count = 12;
+    string address = 13;
+    string policy_id = 14;
+    WalletProposal proposal = 15;
+    string destination_wallet_id = 16;
+    bool watch_only = 19;
+    google.protobuf.Timestamp create_time = 17;
+    google.protobuf.Timestamp update_time = 18;
+}
+
+// The model of proposal to update wallet information
+message WalletProposal {
+    adamant.global.v1.WalletProposalType proposal_type = 7; // The type of the proposal
+    string requester_account_id = 1; // The account id which create the proposal
+    string requester_name = 2; // The name of the account which create the proposal
+    string approver_account_id = 3; // The account id which approve the proposal
+    string approver_name = 4; // The name of the account which approve the proposal
+    string proposed_policy = 5; // The proposed id of the policy which is trying to be applied in the proposal
+    repeated string proposed_validators = 8; // The proposed list of ids of validator
+    uint32 proposed_required_approval_count = 9; // The proposed number of approvals by validator
+    bool is_reviewed = 6; // The flag which indicates the proposal is reviewed or not
+}
+
+// The model of wallet member
+message WalletMember {
+    string account_id = 1; // id
+    adamant.global.v1.AccountType account_type = 2; // The account type
+    string name = 3; // name
+    string email = 4; // email
+    RoleType role = 5; // The role type of account in organization
+    bool is_key_registered = 6; // The flag which indicates the member registered a key to wallet
+    bool is_master = 7; // The flag which indicates the member is master user (only XRP wallet)
+    bool is_validated_to_create_wallet = 8; // The flag which indicates the member is validated to create wallet
+}
+
+// The model of key pair
+message Key {
+    string wallet_id = 1; // The id of wallet
+    string account_id = 2; // The id of account which owns the key
+    adamant.global.v1.AccountType account_type = 3; // The account type of key owner
+    string key_id = 4; // id
+    uint32 key_index = 5; // The index of key
+}
+
+// The model of address
+message Address {
+    string wallet_id = 1; // The id of wallet
+    string address_id = 2; // id
+    gincoinc.global.v1.Coin coin = 3; // The type of coin
+    string address = 4; // address
+    uint32 index = 5; // The index of address
+    uint32 hd_change = 13; // The HD change of address
+    double balance = 6; // The number-typed balance corresponding to the address
+    string string_balance = 7; // The string-typed balance corresponding to the address
+    AddressState state = 8; // state
+    gincoinc.global.v1.AddressType address_type = 9; // The type of address
+    google.protobuf.Timestamp create_time = 11; // the time at which the address was created
+    google.protobuf.Timestamp update_time = 12; // the time at which the address was updated
+}
+
+
+// The model of AddressWithoutBalance
+message AddressWithoutBalance {
+    string wallet_id = 1; // The id of wallet
+    string address_id = 2; // id
+    gincoinc.global.v1.Coin coin = 3; // The type of coin
+    string address = 4; // address
+    uint32 index = 5; // The index of address
+    uint32 hd_change = 10; // The HD change of address
+    AddressState state = 6; // state
+    gincoinc.global.v1.AddressType address_type = 7; // The type of address
+    google.protobuf.Timestamp create_time = 8; // the time at which the address was created
+    google.protobuf.Timestamp update_time = 9; // the time at which the address was updated
+}
+
+message FlushedAddress {
+    string wallet_id = 1; // The id of wallet
+    string address_id = 2; // id
+    gincoinc.global.v1.Coin coin = 3; // The type of coin
+    string address = 4; // address
+    uint32 index = 5; // The index of address
+    double value = 6; // The number-typed value corresponding to the address
+    string string_value = 7; // The string-typed string value corresponding to the address
+    AddressState state = 9; // state
+    gincoinc.global.v1.AddressType address_type = 10; // The type of address
+}
+
+// The model of address which hold ETH for ethereum wallet/address creation etc
+message EthereumFeeAddress {
+    string address = 1; // ethereum address
+    double balance = 2; // The number-typed balance corresponding to the address
+    string string_balance = 3; // The string-typed balance corresponding to the address
+}
+
+message AddressWithBalance {
+    string address = 1; // address
+    double balance = 2; // The number-typed balance corresponding to the address
+    string string_balance = 3; // The string-typed balance corresponding to the address
+    double fee_balance = 4; // The number-typed fee balance corresponding to the address
+    string string_fee_balance = 5; // The string-typed string fee balance corresponding to the address
+}
+
+// The model of transaction
+message Transaction {
+    string wallet_id = 1; // The id of wallet
+    string transaction_id = 2; // id
+    gincoinc.global.v1.Coin coin = 3; // The type of coin
+    string tx_id = 4; // txID
+    string address = 5; // address
+    double value = 6; // The number-typed amount of transaction
+    string string_value = 7; // The string-typed amount of transaction
+    double jpy_rate = 9; // The rate of fiat
+    double fee = 10; // The number-typed amount of transaction fee
+    string string_fee = 11; // The string-typed amount of transaction fee
+    uint64 fee_rate = 12; // The fee rate of transaction (only BTC and its forks. unit: sat/Byte)
+    TransactionState state = 13; // state
+    repeated Key signed_keys = 14; // The list of keys which signed to the transaction
+    repeated TransactionMember members = 17; // members
+    BitcoinSpecific bitcoin_specific = 22; // The Bitcoin specific fields
+    EthereumSpecific ethereum_specific = 20; // The Ethereum specific fields
+    LitecoinSpecific litecoin_specific = 23; // The Litecoin specific fields
+    BitcoincashSpecific bitcoincash_specific = 24; // The Bitcoin Cash specific fields
+    XrpSpecific xrp_specific = 21; // The XRP specific fields
+    TronSpecific tron_specific = 25; // The Tron specific fields
+    C0banSpecific c0ban_specific = 26; // The C0ban specific fields
+    google.protobuf.Timestamp create_time = 18; // the time at which the transaction was created
+    google.protobuf.Timestamp update_time = 19; // the time at which the transaction was updated
+}
+
+// The model of transaction member
+message TransactionMember {
+    string account_id = 1; // id
+    adamant.global.v1.AccountType account_type = 2; // type
+    string name = 3; // name
+    string email = 4; // email
+    RoleType role = 5; // role
+    bool signed = 6; // The flag which indicates the member signed to the transaction
+    bool validated = 7; // The flag which indicates the member validated to the transaction
+}
+
+// The model of transaction input
+message TxInput {
+    string tx_id = 1;
+    uint32 tx_index = 2;
+    double value = 3;
+    string string_value = 4;
+}
+
+// The model of transaction output
+message TxOutput {
+    string address = 1;
+    double value = 2;
+    string string_value = 3;
+    bool is_change = 4;
+}
+
+// The model of Bitcoin specific fields of transaction
+message BitcoinSpecific {
+    repeated TxInput tx_inputs = 1;
+    repeated TxOutput tx_outputs = 2;
+}
+
+// The model of Litecoin specific fields of transaction
+message LitecoinSpecific {
+    repeated TxInput tx_inputs = 1;
+    repeated TxOutput tx_outputs = 2;
+}
+
+// The model of BitcoinCash specific fields of transaction
+message BitcoincashSpecific {
+    repeated TxInput tx_inputs = 1;
+    repeated TxOutput tx_outputs = 2;
+}
+
+// The model of Ethereum specific fields of transaction
+message EthereumSpecific {
+    uint64 gas_limit = 1;
+    uint64 nonce = 2;
+    bool is_next_nonce = 3;
+}
+
+// The model of XRP specific fields of transaction
+message XrpSpecific {
+    uint32 sequence_number = 1;
+    uint32 destination_tag = 2;
+    gincoinc.global.v1.XRPTransactionType tx_type = 3;
+    bool is_next_sequence_number = 4;
+}
+
+// The model of Tron specific fields of transaction
+message TronSpecific {
+    uint64 expiration = 1;
+}
+
+// The model of C0ban specific fields of transaction
+message C0banSpecific {
+    repeated TxInput tx_inputs = 1;
+    repeated TxOutput tx_outputs = 2;
+}
+
+// The model of information about signing
+message SignInfo {
+    string wallet_id = 1;
+    string transaction_id = 2;
+    string key_id = 3;
+    uint32 hd_account = 4;
+    gincoinc.global.v1.Coin coin = 5;
+    string tx_id = 6;
+    uint32 sign_index = 11;
+    string sign_message = 7;
+    uint32 hd_change = 8;
+    uint32 hd_index = 9;
+    repeated SignTxInput sign_tx_inputs = 10;
+}
+
+// The model of transaction input for signing
+message SignTxInput {
+    uint32 tx_input_index = 1;
+    string sign_message = 2;
+    uint32 hd_change = 3;
+    uint32 hd_index = 4;
+}
+
+// The model of transfer
+message Transfer {
+    string wallet_id = 1; // The id of wallet
+    string transfer_id = 2; // id
+    gincoinc.global.v1.Coin coin = 3; // coin
+    string tx_id = 4; // txID
+    gincoinc.global.v1.TransferType transfer_type = 5; // type
+    double value = 6; // The number-typed amount of transfer
+    string string_value = 7; // The string-typed amount of transfer
+    double jpy_rate = 9; // The rate of fiat
+    string partner_wallet_id = 10; // The wallet id to which the transfer send/receive
+    string partner_address = 11; // The address of wallet to which the transfer send/receive
+    uint32 destination_tag = 15; // destination tag (only XRP)
+    gincoinc.global.v1.TransactionState state = 12; // state
+    gincoinc.global.v1.TransactionResult result = 16; // result
+    google.protobuf.Timestamp create_time = 13; // the time at which the transfer was created
+    google.protobuf.Timestamp update_time = 14; // the time at which the transfer was updated
+}
+
+// The model of fiat rate
+message Rate {
+    gincoinc.global.v1.Coin coin = 1;
+    double jpy = 2;
+}
+
+// The model of rate snapshot. the snapshot contains a set of rates
+message RateSnapshot {
+    string rate_snapshot_id = 1; // id
+    map<uint32, Rate> rates = 2; // RatesEntry: map<k, v> / k: enum number of Coin, v: Rate
+}
+
+// The model which indicates corresponding account is deactivatable
+message Deactivatability {
+    string account_id = 1;
+    bool deactivatable = 2;
+}
+
+// The model of labeled address. labeled address is the address which is used to construct whitelist
+message LabeledAddress {
+    string labeled_address_id = 1; // id
+    string name = 2; // name
+    gincoinc.global.v1.Coin coin = 3; // coin
+    string address = 4; // address
+    LabeledAddressProposal proposal = 5; // The proposal about updating the labeled address
+    google.protobuf.Timestamp create_time = 7;// the time at which the labeled address was created
+    google.protobuf.Timestamp update_time = 8;// the time at which the labeled address was updated
+}
+
+// The model of proposal to update labeled address information
+message LabeledAddressProposal {
+    string requester_account_id = 1;
+    string requester_name = 2;
+    string approver_account_id = 3;
+    string approver_name = 4;
+    string proposed_address = 5;
+    bool address_is_reviewed = 6;
+}
+
+// The model of whitelist
+message Whitelist {
+    string whitelist_id = 1; // id
+    string name = 2; // name
+    gincoinc.global.v1.Coin coin = 3; // coin
+    repeated LabeledAddress addresses = 4; // The list of labeled addresses registered in the whitelist
+    google.protobuf.Timestamp create_time = 6; // the time at which the whitelist was created
+    google.protobuf.Timestamp update_time = 7; // the time at which the whitelist was updated
+}
+
+// The model of transfer limit
+message TransferLimit {
+    string transfer_limit_id = 1; // id
+    string name = 2; // name
+    gincoinc.global.v1.Coin coin = 3; // coin
+    int64 hourly_limit = 4; // The hourly limit of amount which the wallet can transfer (in JPY)
+    int64 daily_limit = 5; // The daily limit of amount which the wallet can transfer (in JPY)
+    int64 one_time_limit = 6; // The daily limit of amount which the wallet can transfer (in JPY)
+    TransferLimitProposal proposal = 7; // The proposal about updating the transfer limit
+    bool is_reviewed = 8; // The flag which indicates the transfer limit is reviewed or not
+    google.protobuf.Timestamp create_time = 10; // the time at which the whitelist was created
+    google.protobuf.Timestamp update_time = 11; // the time at which the whitelist was updated
+}
+
+// The model of proposal to update transfer limit information
+message TransferLimitProposal {
+    string requester_account_id = 1;
+    string requester_name = 2;
+    string approver_account_id = 3;
+    string approver_name = 4;
+    int64 proposed_hourly_limit = 5;
+    int64 proposed_daily_limit = 6;
+    int64 proposed_one_time_limit = 7;
+    bool is_reviewed = 8;
+}
+
+// The model of policy
+message Policy {
+    string policy_id = 1; // id
+    PolicyType policy_type = 2; // type
+    string name = 3; // name
+    bool is_base_policy = 4; // The flag indicates the policy is default
+    gincoinc.global.v1.Coin coin = 5; // coin
+    Whitelist whitelist = 6; // whitelist
+    TransferLimit transfer_limit = 7; // transfer limit
+    PolicyProposal proposal = 11; // // The proposal about updating the policy
+    google.protobuf.Timestamp create_time = 9; // the time at which the policy was created
+    google.protobuf.Timestamp update_time = 10; // the time at which the policy was updated
+}
+
+// The model of proposal to update policy information
+message PolicyProposal {
+    string requester_account_id = 1;
+    string requester_name = 2;
+    string approver_account_id = 3;
+    string approver_name = 4;
+    Whitelist proposed_whitelist = 5;
+    bool is_reviewed = 6;
+}
+
+// The model of total balance by asset
+message TotalBalanceByCoin {
+    gincoinc.global.v1.Coin coin = 1;
+    string cold_string_balance = 2;
+    string hot_string_balance = 3;
+}
+
+// The model of total balace
+message TotalBalance {
+    map<uint32, TotalBalanceByCoin> total_balances = 1 [(validate.rules).map.no_sparse = true]; // map<k, v> ... k: enum number of Coin / v: TotalBalanceByCoin
+}
+
+// The model of balance snapshot
+message BalanceSnapshot {
+    google.protobuf.Timestamp create_time = 1;
+    map<uint32, TotalBalanceByCoin> total_balances = 2 [(validate.rules).map.no_sparse = true]; // map<k, v> ... k: enum number of Coin / v: TotalBalanceByCoin
+    map<uint32, Rate> rates = 3 [(validate.rules).map.no_sparse = true]; // map<k, v> ... k: enum number of Coin / v: Rate
+}
+
+message WalletBalanceSnapshotMap {
+    map<string, ListWalletBalanceSnapshots> wallet_balance_snapshot_map = 1 [(validate.rules).map.no_sparse = true]; //map<k, v> ... k: wallet id / v: ListWalletBalanceSnapshot
+}
+
+message ListWalletBalanceSnapshots {
+    repeated WalletBalanceSnapshot wallet_balance_snapshots = 1;
+}
+
+// The model of wallet balance snapshot
+message WalletBalanceSnapshot {
+    google.protobuf.Timestamp create_time = 1;
+    string string_balance = 2 ; //Wallet Balance
+    double jpy = 3; // JPY rate
+}
+
+message TransferVolumeSnapshots {
+    map<int32, ListTransferVolumeSnapshots> transfer_volume_snapshot_by_transfer_type = 1 [(validate.rules).map.no_sparse = true]; //map<k, v> ... k: transfer type / v: ListWalletTransferVolumeSnapshots
+}
+
+message ListTransferVolumeSnapshots {
+    repeated TransferVolumeSnapshot transfer_volume_snapshots = 1;
+}
+
+// The model of transfer volume snapshot
+message TransferVolumeSnapshot {
+    google.protobuf.Timestamp target_time = 1;
+    map<int32, TransferVolume> transfer_volume_by_coin = 2;//map<k, v> ... k: coin / v: TransferVolumeByCoin
+}
+
+message TransferVolume {
+    gincoinc.global.v1.Coin coin = 1; //coin
+    string hot_string_volume = 2 ; //hot volume
+    string cold_string_volume = 3 ; //col volume
+    string hot_string_jpy_volume = 4 ; //hot volume
+    string cold_string_jpy_volume = 5 ; //col volume
+    int64 hot_number = 6; // hot transfer number volume
+    int64 cold_number = 7; // cold transfer number volume
+    gincoinc.global.v1.TransferType transfer_type = 8; // transfer type
+}
+
+message WalletTransferVolumeSnapshots {
+    map<string, ListWalletTransferVolumeSnapshots> wallet_transfer_volume_snapshot_by_wallet_id = 1 [(validate.rules).map.no_sparse = true]; //map<k, v> ... k: wallet id / v: ListWalletTransferVolumeSnapshots
+}
+
+message ListWalletTransferVolumeSnapshots {
+    repeated WalletTransferVolumeSnapshot wallet_transfer_volume_snapshots = 1;
+}
+
+message WalletTransferVolumeSnapshot {
+    google.protobuf.Timestamp target_time = 1;
+    map<int32, WalletTransferVolume> wallet_transfer_volume_by_transfer_type = 2;//map<k, v> ... k: transfer type / v:TransferVolumeByCoin
+}
+
+message WalletTransferVolume {
+    string string_volume = 1; //coin volume
+    string string_jpy_volume = 2 ; //hot volume
+    int64 number = 3; // transfer number volume
+    gincoinc.global.v1.TransferType transfer_type = 4; // transfer type;
+}
+
+// The model of confirmation
+message Confirmation {
+    gincoinc.global.v1.Coin coin = 1;
+    uint32 confirmation = 2;
+}
+
+message WalletFlushSetting {
+    string owner_id = 1;
+    gincoinc.global.v1.Coin coin = 2;
+    string destination_wallet_id = 3;
+    google.protobuf.Timestamp create_time = 4;
+    google.protobuf.Timestamp update_time = 5;
+}
+
+message CompensationFee {
+    string string_value = 1;
+    bool is_spent = 2;
+    google.protobuf.Timestamp create_time = 3;
+}
+
+// =============================================================================
+//  Request Model
+// =============================================================================
+
+message RequestTxOutput {
+    string address = 1 [(validate.rules).string.min_len = 3];
+    string string_value = 2 [(validate.rules).string.min_len = 1];
+}
+
+message RequestSignedInfo {
+    repeated RequestSignature signatures = 1 [(validate.rules).repeated.min_items = 1];
+}
+
+message RequestSignature {
+    uint32 sign_index = 1;
+    string signature = 2 [(validate.rules).string.min_len = 1];
+}
+
+message RequestTransferLimitEntry {
+    TransferLimitType transfer_limit_type = 1 [(validate.rules).enum = {defined_only: true, not_in: [0]}];
+    int64 transfer_limit_value = 2 [(validate.rules).int64.gte = 0];
+}
+
+message RequestRate {
+    gincoinc.global.v1.Coin coin = 1 [(validate.rules).enum = {defined_only: true, not_in: [0]}]; //The id of coin
+    double jpy = 2 [(validate.rules).double = {gte: 0}]; // The rate of JPY
+}

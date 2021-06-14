@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package adamant.teller.v1;
+
+option go_package = "adamanttellerv1";
+
+import "google/protobuf/empty.proto";
+import "validate/validate.proto";
+import "gincoinc/global/v1/gincoincglobalv1/enum.proto";
+import "gincoinc/adamant/global/v1/adamantglobalv1/enum.proto";
+import "gincoinc/adamant/global/v1/adamantglobalv1/global_api.proto";
+import "gincoinc/adamant/global/v1/adamantglobalv1/model.proto";
+
+// =============================================================================
+//  Service
+// =============================================================================
+
+service TellerAPI {
+    rpc CreateWallet (CreateWalletRequest) returns (adamant.global.v1.CreateWalletResponse) {}
+    // Get wallet information. the wallet model includes balance, address etc.
+    rpc GetWallet (adamant.global.v1.GetWalletRequest) returns (adamant.global.v1.Wallet) {}
+    rpc ListWallets (adamant.global.v1.ListWalletsRequest) returns (adamant.global.v1.ListWalletsResponse) {}
+    rpc ListWalletsByFilter (adamant.global.v1.ListWalletsByFilterRequest) returns (adamant.global.v1.ListWalletsResponse) {}
+    rpc ListBaseWallets (adamant.global.v1.ListBaseWalletsRequest) returns (adamant.global.v1.ListBaseWalletsResponse) {}
+    rpc GetSpendableBalance (adamant.global.v1.GetSpendableBalanceRequest) returns (adamant.global.v1.GetSpendableBalanceResponse) {}
+    rpc InitializeXRPWallet (InitializeXRPWalletRequest) returns (google.protobuf.Empty) {}
+
+    // Create a new address for an existing wallet
+    rpc CreateAddress (adamant.global.v1.CreateAddressRequest) returns (adamant.global.v1.CreateAddressResponse) {}
+    rpc GetAddress (adamant.global.v1.GetAddressRequest) returns (adamant.global.v1.Address) {}
+    rpc GetAddressByAddress (adamant.global.v1.GetAddressByAddressRequest) returns (adamant.global.v1.Address) {}
+    rpc GetAddressByIndex (adamant.global.v1.GetAddressByIndexRequest) returns (adamant.global.v1.Address) {}
+    rpc ListAddresses (adamant.global.v1.ListAddressesRequest) returns (adamant.global.v1.ListAddressesResponse) {}
+    // Get an address which hold ETH for ethereum wallet/address creation etc
+    rpc GetEthereumFeeAddress (adamant.global.v1.GetEthereumFeeAddressRequest) returns (adamant.global.v1.EthereumFeeAddress) {}
+
+    rpc UpdateAddressBalance (adamant.global.v1.UpdateAddressBalanceRequest) returns (google.protobuf.Empty) {}
+
+    rpc CreateTransaction (adamant.global.v1.CreateTransactionRequest) returns (adamant.global.v1.CreateTransactionResponse) {}
+    rpc SignTransaction (SignTransactionRequest) returns (google.protobuf.Empty) {}
+    rpc SendTransaction (adamant.global.v1.SendTransactionRequest) returns (adamant.global.v1.SendTransactionResponse) {}
+    rpc CancelTransaction (adamant.global.v1.CancelTransactionRequest) returns (google.protobuf.Empty) {}
+    rpc GetTransaction (adamant.global.v1.GetTransactionRequest) returns (adamant.global.v1.Transaction) {}
+    rpc GetTransactionByTxID (adamant.global.v1.GetTransactionByTxIDRequest) returns (adamant.global.v1.Transaction) {}
+    rpc ListTransactions (adamant.global.v1.ListTransactionsRequest) returns (adamant.global.v1.ListTransactionsResponse) {}
+    rpc ListTransactionsByFilter (adamant.global.v1.ListTransactionsByFilterRequest) returns (adamant.global.v1.ListTransactionsResponse) {}
+
+    // List transfers for a given wallet. Ordered by update time desc
+    rpc ListTransfers (adamant.global.v1.ListTransfersRequest) returns (adamant.global.v1.ListTransfersResponse) {}
+    rpc ListTransfersByFilter (adamant.global.v1.ListTransfersByFilterRequest) returns (adamant.global.v1.ListTransfersResponse) {}
+
+    // Get rates by snapshot id
+    rpc GetRateSnapshot (adamant.global.v1.GetRateSnapshotRequest) returns (adamant.global.v1.RateSnapshot) {}
+    // Get latest rates set to your organization
+    rpc GetLatestRateSnapshot (adamant.global.v1.GetLatestRateSnapshotRequest) returns (adamant.global.v1.RateSnapshot) {}
+    // Set rates to your organization
+    rpc SetRates (adamant.global.v1.SetRatesRequest) returns (adamant.global.v1.SetRatesResponse) {}
+
+    rpc CalculateFee (adamant.global.v1.CalculateFeeRequest) returns (adamant.global.v1.CalculateFeeResponse) {}
+    rpc GetRecommendedFeeRate (adamant.global.v1.GetRecommendedFeeRateRequest) returns (adamant.global.v1.GetRecommendedFeeRateResponse) {}
+    // Validate format of given address
+    rpc ValidateAddress (adamant.global.v1.ValidateAddressRequest) returns (adamant.global.v1.ValidateAddressResponse) {}
+    rpc FlushBalance (adamant.global.v1.FlushBalanceRequest) returns (adamant.global.v1.FlushBalanceResponse) {}
+}
+
+message CreateWalletRequest {
+    string wallet_name = 1 [(validate.rules).string = {min_len: 1, max_len: 20}];
+    gincoinc.global.v1.Coin coin = 2 [(validate.rules).enum = {defined_only: true, not_in: [0]}];
+    adamant.global.v1.WalletType wallet_type = 3 [(validate.rules).enum = {defined_only: true, not_in: [0,2]}];
+    gincoinc.global.v1.AddressType address_type = 4 [(validate.rules).enum = {defined_only: true, not_in: [0]}];
+    // required when create receive only wallet
+    string destination_wallet_id = 5 [(validate.rules).string = {pattern: "^$|^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"}];
+    // optional
+    string inherit_wallet_id = 6 [(validate.rules).string = {pattern:"^$|^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"}];
+}
+
+message InitializeXRPWalletRequest {
+    string wallet_id = 1 [(validate.rules).string = {pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"}];
+}
+
+message SignTransactionRequest {
+    string wallet_id = 1 [(validate.rules).string = {pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"}];
+    string transaction_id = 2 [(validate.rules).string = {pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"}];
+}

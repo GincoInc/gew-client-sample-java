@@ -1,0 +1,115 @@
+syntax = "proto3";
+
+package gincoinc.global.v1;
+
+option go_package = "gincoincglobalv1";
+
+// =============================================================================
+// Enum
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Blockchain
+// -----------------------------------------------------------------------------
+
+// Coin is a type of crypto asset.
+enum Coin {
+  COIN_INVALID = 0;
+  COIN_BTC = 1;
+  COIN_ETH = 2;
+  COIN_LTC = 3;
+  COIN_BCH = 4;
+  COIN_XRP = 5;
+  COIN_BAT = 6;
+  COIN_TRX = 7;
+  COIN_USDT = 8;
+  COIN_RYO = 9;
+  COIN_JASMY = 10;
+  COIN_ENJ = 11;
+  COIN_OMG = 12;
+}
+
+// Network is a type of blockchain network.
+enum Network {
+  NETWORK_INVALID = 0;
+  NETWORK_BITCOIN_MAINNET = 1;
+  NETWORK_BITCOIN_TESTNET = 2;
+  NETWORK_ETHEREUM_MAINNET = 3;
+  NETWORK_ETHEREUM_TESTNET = 4;
+  NETWORK_LITECOIN_MAINNET = 5;
+  NETWORK_LITECOIN_TESTNET = 6;
+  NETWORK_BITCOINCASH_MAINNET = 7;
+  NETWORK_BITCOINCASH_TESTNET = 8;
+  NETWORK_RIPPLE_MAINNET = 9;
+  NETWORK_RIPPLE_TESTNET = 10;
+  NETWORK_TRON_MAINNET = 11;
+  NETWORK_TRON_TESTNET = 12;
+  NETWORK_C0BAN_MAINNET = 13;
+  NETWORK_C0BAN_TESTNET = 14;
+}
+
+// AddressType is a type of address.
+enum AddressType {
+  ADDRESS_TYPE_INVALID = 0;
+  ADDRESS_TYPE_P2SH = 1;//Pay to Script Hash
+  ADDRESS_TYPE_P2SH_P2WSH = 2;//Pay to Witness Script Hash nested P2SH
+  ADDRESS_TYPE_P2WSH = 3;//Pay to Witness Script Hash
+  ADDRESS_TYPE_NONE = 100;//For ETH/XRP
+}
+
+// TransactionState is a state of transaction.
+enum TransactionState {
+  TRANSACTION_STATE_INVALID = 0;
+  TRANSACTION_STATE_SUBMITTED = 1;//Transaction is submitted
+  TRANSACTION_STATE_PENDING = 2;//Transaction is included in mempool
+  TRANSACTION_STATE_PROCESSING = 3;//Transaction is included in a block
+  TRANSACTION_STATE_CONFIRMED = 4;//Exceeded number of confirmations specified
+  TRANSACTION_STATE_DROPPED = 5;//Transaction is dropped
+}
+
+// UTXOState is a state of UTXO.
+enum UTXOState {
+  UTXO_STATE_INVALID = 0;
+  UTXO_STATE_PENDING_UNSPENT = 1;
+  UTXO_STATE_UNSPENT = 2;
+  UTXO_STATE_PENDING_SPENT = 3;
+  UTXO_STATE_SPENT = 4;
+}
+
+// -----------------------------------------------------------------------------
+// Transfer
+// -----------------------------------------------------------------------------
+
+// TransferType is a type of transaction.
+enum TransferType {
+  TRANSFER_TYPE_INVALID = 0;
+  TRANSFER_TYPE_SEND = 1;//The type of send
+  TRANSFER_TYPE_RECEIVE = 2;//The type of receive
+  TRANSFER_TYPE_CHANGE = 3;//The type of change transaction for BTC/LTC/BCH
+  TRANSFER_TYPE_FATAL = 4;//The type of fraudulent remittance
+}
+
+// -----------------------------------------------------------------------------
+// XRP Specification
+// -----------------------------------------------------------------------------
+
+// XRPTransactionType is a type of xrp transaction.
+enum XRPTransactionType {
+  XRP_TRANSACTION_TYPE_INVALID = 0;
+  XRP_TRANSACTION_TYPE_PAYMENT = 1;
+  XRP_TRANSACTION_TYPE_SET_SIGNER_LIST = 2;
+  XRP_TRANSACTION_TYPE_DISABLE_MASTER = 3;
+}
+
+// -----------------------------------------------------------------------------
+// TransactionResult
+// -----------------------------------------------------------------------------
+
+// TransactionResult is a result of transaction.
+enum TransactionResult {
+  TRANSACTION_RESULT_INVALID = 0;
+  TRANSACTION_RESULT_PENDING = 1;// Transaction is pending
+  TRANSACTION_RESULT_SUCCESS = 2;// Transaction is included in block
+  TRANSACTION_RESULT_FAILURE = 3;// Failed to send transaction
+  TRANSACTION_RESULT_NONE = 100;
+}
